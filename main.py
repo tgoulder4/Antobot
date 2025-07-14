@@ -10,7 +10,7 @@ def getECEF():
     print('returning xyz: '+str(xyz))
     return {'x':xyz[0],'y':xyz[1],'z':xyz[2]}
 
-def getCoveredBounds(origin):
+def getCoveredBoundsRelativeToOrigin(origin):
     print("Getting bounds relative to origin...")
     time.sleep(2)
     return {'xMax':200-origin['x'],'xMin':100-origin['x'],'yMax':100-origin['y'],'yMin':100-origin['y'],'zMax':1000-origin['z'],'zMmin':750-origin['z']}
@@ -41,7 +41,7 @@ def planPathAndAct(origin,target,staticMap):
 def main():
     #on summon press
     origin = getECEF()
-    bounds = getCoveredBounds(origin)
+    bounds = getCoveredBoundsRelativeToOrigin(origin)
     print("Origin is "+str(origin) + ", relative bounds are "+str(bounds))
 
     isWithinBounds = checkWithinBounds(bounds,origin)
