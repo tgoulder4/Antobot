@@ -1,5 +1,6 @@
 from EuclidianToCartesian import convertEuclidianLatLonToCartesian
 import time
+from plyer import gps
 
 def getLatLonFromGPS():
     return {'lat':120,'lon':150}
@@ -40,25 +41,30 @@ def planPathAndAct(origin,target,staticMap):
 
 def main():
     #on summon press
-    origin = getECEF()
-    bounds = getCoveredBoundsRelativeToOrigin(origin)
-    print("Origin is "+str(origin) + ", relative bounds are "+str(bounds))
+    # origin = getECEF()
+    # bounds = getCoveredBoundsRelativeToOrigin(origin)
+    # print("Origin is "+str(origin) + ", relative bounds are "+str(bounds))
 
-    isWithinBounds = checkWithinBounds(bounds,origin)
+    # isWithinBounds = checkWithinBounds(bounds,origin)
     
-    if isWithinBounds==True:
-        #get current lat long
-        print("Position is within bounds. Getting current lat and long...")
-        time.sleep(2)
-        currentLatLong = [10,20]
-        print("Getting origin...")
-        origin=convertEuclidianLatLonToCartesian(currentLatLong[0],currentLatLong[1])
+    # if isWithinBounds==True:
+    #     #get current lat long
+    #     print("Position is within bounds. Getting current lat and long...")
+    #     time.sleep(2)
+    #     currentLatLong = [10,20]
+    #     print("Getting origin...")
+    #     origin=convertEuclidianLatLonToCartesian(currentLatLong[0],currentLatLong[1])
 
-        #takes origin, target, staticmap
-        planPathAndAct(origin,[None,None,None],'')
-        print('Finished!')
-    else:
-        print("Position is out of bounds!")
+    #     #takes origin, target, staticmap
+    #     planPathAndAct(origin,[None,None,None],'')
+    #     print('Finished!')
+    # else:
+    #     print("Position is out of bounds!")
+    def broadcast(locn):
+        print("Location is "+locn)
+        
+    gps.configure(broadcast,None)
+    print('gps: '+ gps)
 
 main()
         
