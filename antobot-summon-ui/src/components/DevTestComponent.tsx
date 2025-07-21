@@ -6,14 +6,14 @@ import { MapPin } from "lucide-react"
 interface DevTestComponentProps {
     buttonText: string
     subtitle: string
-    properties: Array<{ label: string; value: string }>
+    properties: Array<{ label: string; value: any }>
     onTest?: () => void
 }
 
 export function DevTestComponent({ buttonText, subtitle, properties, onTest }: DevTestComponentProps) {
     return (
         <div className="space-y-3">
-            <Button onClick={onTest} variant="default" className="w-full justify-start bg-transparent">
+            <Button onClick={onTest} variant="black" className="w-full justify-start ">
                 <MapPin className="mr-2 h-4 w-4" />
                 {buttonText}
             </Button>
@@ -24,7 +24,7 @@ export function DevTestComponent({ buttonText, subtitle, properties, onTest }: D
                     {properties.map((prop, index) => (
                         <div key={index} className="flex justify-between">
                             <span className="text-gray-600">{prop.label}:</span>
-                            <span className="font-mono">{prop.value}</span>
+                            <span className="font-mono">{String(prop.value)}</span>
                         </div>
                     ))}
                 </div>

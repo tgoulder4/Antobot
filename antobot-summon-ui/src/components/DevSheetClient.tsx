@@ -1,23 +1,69 @@
+'use client'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
-import { Menu } from "lucide-react"
+import { Menu, Wrench } from "lucide-react"
 import { DevTestComponent } from "./DevTestComponent"
+import { useEffect, useMemo, useState } from "react"
 
 interface DevSheetProps {
     robotState: string
 }
+type DevComponentProps = {
+    latitude: number
+    longitude: number
+}
 
 export function DevSheet({ robotState }: DevSheetProps) {
+    const [props, setProps] = useState<DevComponentProps>({ latitude: 0, longitude: 0 })
+    const fetchLocation = async () => {
+        const coords = await getLocation()
+        //test by setting to 0
+        setProps({ latitude: coords.latitude, longitude: coords.longitude })
+        // setProps({ latitude: 0, longitude: 0 })
+    }
+    useEffect(() => {
+        fetchLocation()
+    }, [])
+
     const testGPSAccuracy = () => {
         console.log("Testing GPS accuracy...")
+        fetchLocation()
+
+        // setProps({ latitude: 0, longitude: 0 })
+        console.log("GPS accuracy test complete. Current coordinates:", props)
+    }
+    const geo = useMemo(() => {
+        if (navigator.geolocation) {
+            return navigator.geolocation
+        } else {
+            console.error("Geolocation is not supported by this browser.")
+            return null
+        }
+    }, [])
+
+    const getLocation = async () => {
+        console.log("Getting location...")
+        let coords = { latitude: 0, longitude: 0 }
+        if (!geo) return { latitude: 0, longitude: 0 }
+        geo.getCurrentPosition((position => {
+            console.log("Current position:", position)
+            coords = { latitude: position.coords.latitude, longitude: position.coords.longitude }
+            console.log("Coordinates obtained:", coords)
+        }), (error) => {
+            console.error("Error getting location:", error)
+            coords = { latitude: 0, longitude: 0 }
+        })
+        await new Promise(resolve => setTimeout(resolve, 1000)) // Wait for the position to be set
+        console.log("----> Returning coordinates:", coords)
+        return coords
     }
 
     return (
         <Sheet>
             <SheetTrigger asChild>
-                <Button variant="ghost" className="h-10 px-3 gap-2">
-                    <Menu className="h-6 w-6" />
-                    <span className="hidden md:inline">Show Dev Options</span>
+                <Button variant="outline" className="h-10 px-3 gap-2 ">
+                    <Wrench className="h-6 w-6" />
+                    {/* <span className="hidden md:inline">Show Dev Options</span> */}
                     <span className="sr-only md:hidden">Open menu</span>
                 </Button>
             </SheetTrigger>
@@ -31,9 +77,8 @@ export function DevSheet({ robotState }: DevSheetProps) {
                             buttonText="Test GPS Accuracy"
                             subtitle="GPS Metrics"
                             properties={[
-                                { label: "Accuracy", value: "±2.3m" },
-                                { label: "Satellites", value: "12" },
-                                { label: "Fix Type", value: "3D" },
+                                { label: "Latitude", value: props.latitude },
+                                { label: "Longitude", value: props.longitude },
                             ]}
                             onTest={testGPSAccuracy}
                         />
@@ -49,7 +94,7 @@ export function DevSheet({ robotState }: DevSheetProps) {
                             onTest={() => console.log("Testing battery...")}
                         />
 
-                        <DevTestComponent
+                        {/* <DevTestComponent
                             buttonText="Test Network Status"
                             subtitle="Connection Metrics"
                             properties={[
@@ -91,7 +136,7 @@ export function DevSheet({ robotState }: DevSheetProps) {
                                 { label: "Localization", value: "Good" },
                             ]}
                             onTest={() => console.log("Testing navigation...")}
-                        />
+                        /> */}
                     </div>
                 </div>
             </SheetContent>

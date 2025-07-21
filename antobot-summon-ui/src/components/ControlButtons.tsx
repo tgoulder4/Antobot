@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Play, Pause, X } from "lucide-react"
+import { useState } from "react"
 
 interface ControlButtonsProps {
     state: "home" | "summoning" | "halted"
@@ -9,15 +10,18 @@ interface ControlButtonsProps {
     onHalt: () => void
     onStop: () => void
     onPlay: () => void
+    connectedState?: boolean
 }
 
-export function ControlButtons({ state, onSummon, onHalt, onStop, onPlay }: ControlButtonsProps) {
+export function ControlButtons({ state, onSummon, onHalt, onStop, onPlay, connectedState }: ControlButtonsProps) {
+    const [loading, setLoading] = useState(false)
     if (state === "home") {
         return (
             <div className="space-y-3 pt-4 pb-8">
                 <Button
                     onClick={onSummon}
                     className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-6 text-lg font-medium rounded-lg"
+                    disabled={!connectedState}
                 >
                     <Play className="mr-2 h-5 w-5" />
                     Summon
@@ -48,12 +52,11 @@ export function ControlButtons({ state, onSummon, onHalt, onStop, onPlay }: Cont
         )
     }
 
-    // halted state
     return (
         <div className="space-y-3 pt-4 pb-8">
             <Button
                 onClick={onPlay}
-                className="w-full bg-emerald-400 hover:bg-emerald-500 text-white py-6 text-lg font-medium rounded-lg"
+                className="w-full bg-black hover:bg-gray-800 text-white py-6 text-lg font-medium rounded-lg"
             >
                 <Play className="mr-2 h-5 w-5" />
                 Play
