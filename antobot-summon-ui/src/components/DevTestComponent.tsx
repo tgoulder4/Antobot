@@ -8,9 +8,10 @@ interface DevTestComponentProps {
     subtitle: string
     properties: Array<{ label: string; value: any }>
     onTest?: () => void
+    customComponetns?: React.ReactNode
 }
 
-export function DevTestComponent({ buttonText, subtitle, properties, onTest }: DevTestComponentProps) {
+export function DevTestComponent({ buttonText, subtitle, properties, onTest, customComponetns }: DevTestComponentProps) {
     return (
         <div className="space-y-3">
             <Button onClick={onTest} variant="black" className="w-full justify-start ">
@@ -27,6 +28,7 @@ export function DevTestComponent({ buttonText, subtitle, properties, onTest }: D
                             <span className="font-mono">{String(prop.value)}</span>
                         </div>
                     ))}
+                    {customComponetns}
                 </div>
             </div>
         </div>

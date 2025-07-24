@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Menu, Wrench } from "lucide-react"
 import { DevTestComponent } from "./DevTestComponent"
 import { useEffect, useMemo, useState } from "react"
+import ros, { Ros } from 'roslib'
 
 interface DevSheetProps {
     robotState: string
@@ -11,51 +12,86 @@ interface DevSheetProps {
 type DevComponentProps = {
     latitude: number
     longitude: number
+    accuracy: number
 }
 
 export function DevSheet({ robotState }: DevSheetProps) {
-    const [props, setProps] = useState<DevComponentProps>({ latitude: 0, longitude: 0 })
-    const fetchLocation = async () => {
-        const coords = await getLocation()
-        //test by setting to 0
-        setProps({ latitude: coords.latitude, longitude: coords.longitude })
-        // setProps({ latitude: 0, longitude: 0 })
-    }
+    const [props, setProps] = useState<DevComponentProps>({ latitude: 0, longitude: 0, accuracy: 0 })
+    const [geostate, setGeoState] = useState<0 | 1 | 2 | 3 | String | null>(null)
+    const [reqState, setReqState] = useState<"idle" | "sent" | "success" | "error">("idle")
     useEffect(() => {
-        fetchLocation()
+        setGeoState(0)
+        getLocation()
     }, [])
 
     const testGPSAccuracy = () => {
         console.log("Testing GPS accuracy...")
-        fetchLocation()
+        getLocation()
 
         // setProps({ latitude: 0, longitude: 0 })
         console.log("GPS accuracy test complete. Current coordinates:", props)
     }
     const geo = useMemo(() => {
         if (navigator.geolocation) {
+            console.log("geolocation: ")
+
+            console.dir(navigator.geolocation, { depth: null })
             return navigator.geolocation
         } else {
             console.error("Geolocation is not supported by this browser.")
             return null
         }
     }, [])
-
-    const getLocation = async () => {
+    navigator.geolocation.getCurrentPosition
+    const getLocation: () => Promise<void> = async () => {
         console.log("Getting location...")
-        let coords = { latitude: 0, longitude: 0 }
-        if (!geo) return { latitude: 0, longitude: 0 }
-        geo.getCurrentPosition((position => {
+        setGeoState(1)
+        let coords: GeolocationCoordinates = ({} as GeolocationCoordinates)
+        if (!geo) return;
+        geo.getCurrentPosition((async (position) => {
             console.log("Current position:", position)
-            coords = { latitude: position.coords.latitude, longitude: position.coords.longitude }
+            coords = position.coords
             console.log("Coordinates obtained:", coords)
+            setGeoState(2)
+            await new Promise(resolve => setTimeout(resolve, 1000)) // Wait for the position to be set
+            console.log("----> Returning coordinates:", coords)
+            setGeoState(3)
+            setProps({ latitude: coords.latitude, longitude: coords.longitude, accuracy: coords.accuracy })
         }), (error) => {
             console.error("Error getting location:", error)
-            coords = { latitude: 0, longitude: 0 }
+            setGeoState(JSON.stringify(error.message))
+            return
         })
-        await new Promise(resolve => setTimeout(resolve, 1000)) // Wait for the position to be set
-        console.log("----> Returning coordinates:", coords)
-        return coords
+    }
+
+    const connectToBot = async () => {
+        //using roslib to connect to the robot
+        const ros = new Ros({
+            url: 'wss://172.24.45.98:9090'
+        })
+        console.log("Connecting to robot via wss...")
+        ros.on('connection', () => {
+            setReqState("success");
+        });
+        ros.on('error', (error) => {
+            console.error("Error connecting to robot:", error);
+            setReqState("error");
+        });
+        ros.on('close', () => {
+            console.log("Connection to robot closed");
+            setReqState("idle");
+        });
+        // console.log("Pinging");
+        // const res = await fetch("ws://172.24.45.98:9090/");
+        // setReqState("sent");
+        // const data = await res.json();
+        // if (!res.ok) {
+        //     console.error("Error pinging robot:", data);
+        //     setReqState("error");
+        //     return;
+        // }
+        // setReqState("success");
+        // console.log("Ping response:", data);
     }
 
     return (
@@ -77,21 +113,35 @@ export function DevSheet({ robotState }: DevSheetProps) {
                             buttonText="Test GPS Accuracy"
                             subtitle="GPS Metrics"
                             properties={[
-                                { label: "Latitude", value: props.latitude },
-                                { label: "Longitude", value: props.longitude },
+                                { label: "Latitude", value: props.latitude ? props.latitude.toFixed(6) : "N/A" },
+                                { label: "Longitude", value: props.longitude ? props.longitude.toFixed(6) : "N/A" },
+                                { label: "Accuracy", value: props.accuracy ? `${props.accuracy}m` : "N/A" },
                             ]}
                             onTest={testGPSAccuracy}
+                            customComponetns={<div>
+                                {
+                                    geostate && <div className="bg-green-500 ">{`geostate is not null, and is ${geostate}. end`}</div>
+                                }
+                            </div>}
                         />
 
                         <DevTestComponent
-                            buttonText="Test Battery Status"
-                            subtitle="Power Metrics"
+                            buttonText="Test Connectivity with Robot"
+                            subtitle="Connectivity Metrics"
+                            onTest={connectToBot}
                             properties={[
-                                { label: "Battery Level", value: "87%" },
-                                { label: "Voltage", value: "24.3V" },
-                                { label: "Current", value: "2.1A" },
+                                // { label: "Battery Level", value: "87%" },
+                                // { label: "Voltage", value: "24.3V" },
+                                // { label: "Current", value: "2.1A" },
                             ]}
-                            onTest={() => console.log("Testing battery...")}
+                            customComponetns={
+                                <div className="flex flex-col gap-2">
+                                    {reqState === "idle" && <div className="text-gray-500">Click to ping the robot</div>}
+                                    {reqState === "sent" && <div className="text-yellow-500">Request sent...</div>}
+                                    {reqState === "success" && <div className="text-green-500">Robot is online!</div>}
+                                    {reqState === "error" && <div className="text-red-500">Error pinging robot</div>}
+                                </div>
+                            }
                         />
 
                         {/* <DevTestComponent
