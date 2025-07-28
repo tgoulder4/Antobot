@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Ros } from "roslib"
+import { Message, Ros, Topic } from "roslib"
+import { toast } from "sonner"
 
 export function useConnectionStatus() {
     const [isConnected, setIsConnected] = useState(false)
@@ -14,14 +15,16 @@ export function useConnectionStatus() {
         }
         //using roslib to connect to the robot
         const ros = new Ros({
-            url: 'wss://172.26.184.19:9090' // Replace with your robot's WebSocket URL
+            url: 'wss://10.33.57.178:9090' // Replace with your robot's WebSocket URL
         })
-        console.log("Connecting to robot via wss...")
+
+        toast("Connecting to robot via wss...")
         ros.on('connection', () => {
             setIsConnected(true);
-            console.log("Connected to robot successfully");
+            toast.success("Connected to robot successfully");
             setRos(ros);
         });
+
         ros.on('error', (error) => {
             console.error("Error connecting to robot:", error);
             setIsConnected(false);

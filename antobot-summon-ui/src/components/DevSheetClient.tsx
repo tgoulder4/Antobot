@@ -4,6 +4,11 @@ import { Button } from "@/components/ui/button"
 import { Menu, Wrench } from "lucide-react"
 import { DevTestComponent } from "./DevTestComponent"
 import { useEffect, useMemo, useState } from "react"
+import { useLocation } from "@/hooks/useLocation"
+import type { Location } from "@/types/location"
+import { Ros, Topic, Message } from "roslib"
+import { convertEuclideanToCartesian } from "@/conversions/euclideanToCartesian"
+import { toast } from "sonner"
 
 interface DevSheetProps {
     initialise: () => Promise<ROSLIB.Ros>
@@ -13,58 +18,65 @@ type DevComponentProps = {
     latitude: number
     longitude: number
     accuracy: number
-
+    altitude: number
+    cart: number[]
 }
 
 export function DevSheet({ initialise, isConnected }: DevSheetProps) {
-    const [props, setProps] = useState<DevComponentProps>({ latitude: 0, longitude: 0, accuracy: 0 })
+    const [props, setProps] = useState<DevComponentProps>({ latitude: 0, longitude: 0, accuracy: 0, altitude: 0, cart: [] })
     const [geostate, setGeoState] = useState<0 | 1 | 2 | 3 | String | null>(null);
+    const { latitude, longitude, accuracy, altitude, retrieveNewLocation } = useLocation();
 
     useEffect(() => {
         setGeoState(0)
-        getLocation()
-    }, [])
+        console.log("useLocation hook returned:" + { latitude, longitude, accuracy })
+        //get cart
+        async function main() {
+            // const cart = await convertEuclideanToCartesian(latitude, longitude, accuracy);
+            setProps({
+                latitude,
+                longitude,
+                accuracy,
+                altitude,
+                cart: await convertEuclideanToCartesian(latitude, longitude, altitude)
+            })
+        }
+        main()
+    }, [latitude, longitude, accuracy])
 
     const testGPSAccuracy = () => {
         console.log("Testing GPS accuracy...")
-        getLocation()
+
 
         // setProps({ latitude: 0, longitude: 0 })
-        console.log("GPS accuracy test complete. Current coordinates:", props)
-    }
-    const geo = useMemo(() => {
-        if (navigator.geolocation) {
-            console.log("geolocation: ")
-
-            console.dir(navigator.geolocation, { depth: null })
-            return navigator.geolocation
-        } else {
-            console.error("Geolocation is not supported by this browser.")
-            return null
-        }
-    }, [])
-    navigator.geolocation.getCurrentPosition
-    const getLocation: () => Promise<void> = async () => {
-        console.log("Getting location...")
-        setGeoState(1)
-        let coords: GeolocationCoordinates = ({} as GeolocationCoordinates)
-        if (!geo) return;
-        geo.getCurrentPosition((async (position) => {
-            console.log("Current position:", position)
-            coords = position.coords
-            console.log("Coordinates obtained:", coords)
-            setGeoState(2)
-            await new Promise(resolve => setTimeout(resolve, 1000)) // Wait for the position to be set
-            console.log("----> Returning coordinates:", coords)
-            setGeoState(3)
-            setProps({ latitude: coords.latitude, longitude: coords.longitude, accuracy: coords.accuracy })
-        }), (error) => {
-            console.error("Error getting location:", error)
-            setGeoState(JSON.stringify(error.message))
-            return
-        })
+        console.log("GPS accuracy test complete. Current coordinates:" + props)
     }
 
+    // const broadcastNewLocation = async () => {
+    //     if (!isConnected) {
+    //         console.error("Cannot broadcast location, not connected to robot");
+    //         return;
+    //     }
+    //     console.log("Broadcasting new location to robot...");
+    //     const ros = await initialise();
+    //     const topic = new Topic({
+    //         ros: ros,
+    //         name: '/summon',
+    //         messageType: 'geometry_msgs/PoseStamped'
+    //     });
+    //     const message = new Message({
+    //         header: {
+    //             frame_id: 'map',
+    //             stamp: { sec: 0, nsec: 0 }
+    //         },
+    //         pose: {
+    //             position: { x: props.latitude, y: props.longitude, z: 0 },
+    //             orientation: { x: 0, y: 0, z: 0, w: 1 }
+    //         }
+    //     });
+    //     topic.publish(message);
+    //     console.log("Location broadcasted:", message);
+    // }
     return (
         <Sheet>
             <SheetTrigger asChild>
@@ -81,12 +93,14 @@ export function DevSheet({ initialise, isConnected }: DevSheetProps) {
                 <div className="flex-1 overflow-y-auto mt-6 p-4">
                     <div className="space-y-6 pb-6">
                         <DevTestComponent
-                            buttonText="Test GPS Accuracy"
-                            subtitle="GPS Metrics"
+                            buttonText="Get new co-ords"
+                            subtitle="GPS Metrics automatically refresh every second. Click to manually refresh."
                             properties={[
                                 { label: "Latitude", value: props.latitude ? props.latitude.toFixed(6) : "N/A" },
                                 { label: "Longitude", value: props.longitude ? props.longitude.toFixed(6) : "N/A" },
+                                { label: "Altitude", value: props.altitude ? `${props.altitude}m` : "N/A" },
                                 { label: "Accuracy", value: props.accuracy ? `${props.accuracy}m` : "N/A" },
+                                { label: 'In cartesian', value: props.cart.length > 0 ? `(${props.cart[0].toFixed(2)}, ${props.cart[1].toFixed(2)}, ${props.cart[2].toFixed(2)})` : "N/A" },
                             ]}
                             onTest={testGPSAccuracy}
                             customComponetns={<div>
@@ -100,6 +114,27 @@ export function DevSheet({ initialise, isConnected }: DevSheetProps) {
                             buttonText="Test Connectivity with Robot"
                             subtitle="Connectivity Metrics"
                             onTest={initialise}
+                            properties={[
+                                // { label: "Battery Level", value: "87%" },
+                                // { label: "Voltage", value: "24.3V" },
+                                // { label: "Current", value: "2.1A" },
+                            ]}
+                            customComponetns={
+                                <div className="flex flex-col gap-2">
+                                    {isConnected === true && <div className="text-green-500">Robot is online!</div>}
+                                    {isConnected === false && <div className="text-red-500">Error pinging robot</div>}
+                                </div>
+                            }
+                        />
+
+
+                        <DevTestComponent
+                            buttonText="Broadcast Co-ordinates"
+                            subtitle="Click to send current coordinates to robot"
+                            onTest={async () => {
+                                retrieveNewLocation();
+                                //  broadcastNewLocation()
+                            }}
                             properties={[
                                 // { label: "Battery Level", value: "87%" },
                                 // { label: "Voltage", value: "24.3V" },

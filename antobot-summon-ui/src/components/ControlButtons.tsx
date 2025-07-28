@@ -1,7 +1,7 @@
-"use client"
+
 
 import { Button } from "@/components/ui/button"
-import { Play, Pause, X } from "lucide-react"
+import { Play, Pause, X, Loader2 } from "lucide-react"
 import { useState } from "react"
 
 interface ControlButtonsProps {
@@ -14,15 +14,24 @@ interface ControlButtonsProps {
 }
 
 export function ControlButtons({ state, onSummon, onHalt, onStop, onPlay, connectedState }: ControlButtonsProps) {
+    const [summonClicked, setSummonClicked] = useState(false)
+    const handleOnSummon = async () => {
+        setSummonClicked(true)
+        await onSummon()
+        setSummonClicked(false)
+    }
     if (state === "home") {
         return (
             <div className="space-y-3 pt-4 pb-8">
                 <Button
-                    onClick={onSummon}
+                    onClick={handleOnSummon}
                     className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-6 text-lg font-medium rounded-lg"
-                    disabled={!connectedState}
+                    disabled={!connectedState || summonClicked}
                 >
-                    <Play className="mr-2 h-5 w-5" />
+                    {
+
+                        summonClicked ? <Loader2 className="animate animate-spin" /> : <Play className="mr-2 h-5 w-5" />
+                    }
                     Summon
                 </Button>
             </div>
