@@ -1,29 +1,58 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { Ros } from "roslib"
 
 export function useConnectionStatus() {
-    const [isConnected, setIsConnected] = useState(true)
+    const [isConnected, setIsConnected] = useState(false)
+    const [rosConn, setRos] = useState<Ros | null>(null)
 
+    const initialise = async () => {
+        if (rosConn) {
+            console.log("Already connected to the robot");
+            return rosConn;
+        }
+        //using roslib to connect to the robot
+        const ros = new Ros({
+            url: 'wss://172.26.184.19:9090' // Replace with your robot's WebSocket URL
+        })
+        console.log("Connecting to robot via wss...")
+        ros.on('connection', () => {
+            setIsConnected(true);
+            console.log("Connected to robot successfully");
+            setRos(ros);
+        });
+        ros.on('error', (error) => {
+            console.error("Error connecting to robot:", error);
+            setIsConnected(false);
+        });
+        ros.on('close', () => {
+            console.log("Connection to robot closed");
+            setIsConnected(false);
+            setRos(null);
+        });
+
+        return ros;
+    }
     useEffect(() => {
-        const checkConnection = async () => {
-            try {
-                // pinging - we'd make an http GET call to the antobot here and wait for a response
-                await new Promise((resolve) => setTimeout(resolve, 100))
-                // await fetch('/ping') // exanple endpoitn 
-                const connected = Math.random() > 0.1 //random chance
-                setIsConnected(connected)
-            } catch (error) {
-                setIsConnected(false)
+        const main = async () => {
+            return await initialise();
+        }
+        main()
+        return () => {
+            while (true) {
+                if (!rosConn) {
+                    console.log("Cleaning up connection...");
+                    break;
+                };
+                // Close the connection after a short delay to ensure cleanup
+                (new Promise(() => setTimeout(() => {
+                    rosConn?.close();
+                }, 1000)))
             }
         }
 
-
-        checkConnection()
-        const interval = setInterval(checkConnection, 5000)
-
-        return () => clearInterval(interval)
     }, [])
 
-    return { isConnected, setConnectedState: setIsConnected }
+    return { isConnected, initialise }
 }

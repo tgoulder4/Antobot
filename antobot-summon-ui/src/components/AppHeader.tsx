@@ -1,11 +1,14 @@
 
+import type ROSLIB from "roslib"
 import { DevSheet } from "./DevSheetClient"
 
 interface AppHeaderProps {
     robotState: string
+    initialise: () => Promise<ROSLIB.Ros>
+    isConnected: boolean
 }
 
-export function AppHeader({ robotState }: AppHeaderProps) {
+export function AppHeader({ robotState, isConnected, initialise }: AppHeaderProps) {
     return (
         <div className="bg-gray-100 p-4 border-b border-gray-200 relative">
             <div className="flex flex-row justify-between items-center">
@@ -14,7 +17,7 @@ export function AppHeader({ robotState }: AppHeaderProps) {
                     <p className="">|</p>
                     <p className="">Tye Goulder</p>
                 </div>
-                <DevSheet robotState={robotState} />
+                <DevSheet isConnected={isConnected} initialise={initialise} />
             </div>
         </div>
     )

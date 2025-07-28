@@ -4,21 +4,22 @@ import { Button } from "@/components/ui/button"
 import { Menu, Wrench } from "lucide-react"
 import { DevTestComponent } from "./DevTestComponent"
 import { useEffect, useMemo, useState } from "react"
-import ros, { Ros } from 'roslib'
 
 interface DevSheetProps {
-    robotState: string
+    initialise: () => Promise<ROSLIB.Ros>
+    isConnected: boolean
 }
 type DevComponentProps = {
     latitude: number
     longitude: number
     accuracy: number
+
 }
 
-export function DevSheet({ robotState }: DevSheetProps) {
+export function DevSheet({ initialise, isConnected }: DevSheetProps) {
     const [props, setProps] = useState<DevComponentProps>({ latitude: 0, longitude: 0, accuracy: 0 })
-    const [geostate, setGeoState] = useState<0 | 1 | 2 | 3 | String | null>(null)
-    const [reqState, setReqState] = useState<"idle" | "sent" | "success" | "error">("idle")
+    const [geostate, setGeoState] = useState<0 | 1 | 2 | 3 | String | null>(null);
+
     useEffect(() => {
         setGeoState(0)
         getLocation()
@@ -64,36 +65,6 @@ export function DevSheet({ robotState }: DevSheetProps) {
         })
     }
 
-    const connectToBot = async () => {
-        //using roslib to connect to the robot
-        const ros = new Ros({
-            url: 'wss://172.24.45.98:9090'
-        })
-        console.log("Connecting to robot via wss...")
-        ros.on('connection', () => {
-            setReqState("success");
-        });
-        ros.on('error', (error) => {
-            console.error("Error connecting to robot:", error);
-            setReqState("error");
-        });
-        ros.on('close', () => {
-            console.log("Connection to robot closed");
-            setReqState("idle");
-        });
-        // console.log("Pinging");
-        // const res = await fetch("ws://172.24.45.98:9090/");
-        // setReqState("sent");
-        // const data = await res.json();
-        // if (!res.ok) {
-        //     console.error("Error pinging robot:", data);
-        //     setReqState("error");
-        //     return;
-        // }
-        // setReqState("success");
-        // console.log("Ping response:", data);
-    }
-
     return (
         <Sheet>
             <SheetTrigger asChild>
@@ -128,7 +99,7 @@ export function DevSheet({ robotState }: DevSheetProps) {
                         <DevTestComponent
                             buttonText="Test Connectivity with Robot"
                             subtitle="Connectivity Metrics"
-                            onTest={connectToBot}
+                            onTest={initialise}
                             properties={[
                                 // { label: "Battery Level", value: "87%" },
                                 // { label: "Voltage", value: "24.3V" },
@@ -136,10 +107,8 @@ export function DevSheet({ robotState }: DevSheetProps) {
                             ]}
                             customComponetns={
                                 <div className="flex flex-col gap-2">
-                                    {reqState === "idle" && <div className="text-gray-500">Click to ping the robot</div>}
-                                    {reqState === "sent" && <div className="text-yellow-500">Request sent...</div>}
-                                    {reqState === "success" && <div className="text-green-500">Robot is online!</div>}
-                                    {reqState === "error" && <div className="text-red-500">Error pinging robot</div>}
+                                    {isConnected === true && <div className="text-green-500">Robot is online!</div>}
+                                    {isConnected === false && <div className="text-red-500">Error pinging robot</div>}
                                 </div>
                             }
                         />

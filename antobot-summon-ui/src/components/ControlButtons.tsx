@@ -14,7 +14,6 @@ interface ControlButtonsProps {
 }
 
 export function ControlButtons({ state, onSummon, onHalt, onStop, onPlay, connectedState }: ControlButtonsProps) {
-    const [loading, setLoading] = useState(false)
     if (state === "home") {
         return (
             <div className="space-y-3 pt-4 pb-8">
