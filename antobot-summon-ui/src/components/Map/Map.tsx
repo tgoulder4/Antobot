@@ -31,15 +31,11 @@ export interface MapData {
 }
 
 export const MapPlot: React.FC<MapPlotProps> = ({ mapData }) => {
-    // A 'ref' is used to get a direct reference to the plot's div element in the DOM.
-    const plotRef = useRef<HTMLDivElement>(null);
 
-    // 'useEffect' handles side effects, like drawing the chart.
-    // It will run automatically whenever the value in its dependency array `[mapData]` changes.
+    const plotRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
         // We only proceed if the div has been rendered and we have map data.
         if (plotRef.current && mapData) {
-            // This is the same logic from our previous TypeScript function to find occupied cells.
             const { width, resolution, origin } = mapData.info;
             const data = mapData.data;
 
@@ -73,15 +69,22 @@ export const MapPlot: React.FC<MapPlotProps> = ({ mapData }) => {
 
             // Define the layout of the plot for a better appearance.
             const layout: Partial<Plotly.Layout> = {
-                title: { text: 'Map Occupancy Grid' },
+                autosize: true,
+                plot_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent background
+                paper_bgcolor: 'rgba(0, 0, 0, 0)', // Transparent paper background
+
+                yaxis: {
+                    showticklabels: false,
+                    //black grid lines with 0.5 opacity
+                    // gridcolor: 'rgba(0, 0, 0, 0.1)',
+                    fixedrange: true,
+                },
                 xaxis: {
                     scaleanchor: 'y', // This and the next line ensure a 1:1 aspect ratio
                     scaleratio: 1,
-                },
-                //make an appropriately sized square grid depending on the data...
-                grid: {
-                    rows: Math.ceil(Math.sqrt(occupiedY.length)), // Square root for equal rows/columns
-                    columns: Math.ceil(Math.sqrt(occupiedY.length)),
+                    showticklabels: false,
+                    // gridcolor: 'rgba(0, 0, 0, 0.1)',
+                    fixedrange: true,
                 },
                 margin: { l: 50, r: 50, b: 50, t: 70 },
             };

@@ -10,14 +10,14 @@ import type { Location } from "@/types/location"; // Assuming this is the path t
 const convertGeoToPixel = (
     location: Location,
     mapInfo: MapData['info'],
-    mapBounds: { minLat: number; maxLat: number; minLon: number; maxLon: number },
+    mapBounds: { minX: number; maxX: number; minY: number; maxY: number },
     containerSize: { width: number; height: number }
 ) => {
     if (!location.latitude || !location.longitude) return null;
 
     // Calculate the percentage position within the geographical bounds
-    const lonPercent = (location.longitude - mapBounds.minLon) / (mapBounds.maxLon - mapBounds.minLon);
-    const latPercent = (location.latitude - mapBounds.minLat) / (mapBounds.maxLat - mapBounds.minLat);
+    const lonPercent = (location.longitude - mapBounds.minY) / (mapBounds.maxY - mapBounds.minY);
+    const latPercent = (location.latitude - mapBounds.minX) / (mapBounds.maxX - mapBounds.minX);
 
     // Convert percentages to pixel coordinates within the container
     // We clamp the values between 0 and 1 to ensure the dot stays within the bounds.
@@ -29,7 +29,6 @@ const convertGeoToPixel = (
 };
 
 
-// --- The Main View Component ---
 export const LiveMapView: React.FC = () => {
     const location = useLocation();
     const [mapData, setMapData] = useState<MapData | null>(null);
@@ -37,10 +36,12 @@ export const LiveMapView: React.FC = () => {
     // IMPORTANT: Define the geographical boundaries that your map represents.
     // You must adjust these values to match the actual area of your occupancy grid.
     const mapBounds = useMemo(() => ({
-        minLat: 51.4,
-        maxLat: 51.6,
-        minLon: -0.2,
-        maxLon: 0.0,
+        //this should be in cartesian not lat lon
+        minX: -2000,
+        maxX: 2000,
+        minY: -2000,
+        maxY: 2000,
+        //4000,4000 1px = 0.5cm
     }), []);
 
     // Calculate the user's pixel position. useMemo prevents recalculating on every render.

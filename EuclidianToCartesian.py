@@ -24,8 +24,8 @@ def useGeodetic(lat,lon):
 def convertEuclidianLatLonToCartesian(lat,lon):
       print("Converting lat "+str(lat) + " and long "+str(lon)+ " to Cartesian")
       # we could convert from polar co-ordinates to cartesian using simple trigonometry x=rcostheta y=rsintheta 
-      cartesian = useTrigonometric(lat,lon)
-      # cartesian = useGeodetic(lat,lon)
+      # cartesian = useTrigonometric(lat,lon)
+      cartesian = useGeodetic(lat,lon)
       print("----------> Resulting cartesian co-ord: "+str(cartesian))
 
       return cartesian
