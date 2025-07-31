@@ -148,6 +148,25 @@ export function DevSheet({ initialise, isConnected }: DevSheetProps) {
                             }
                         />
 
+                        <DevTestComponent
+                            buttonText="Get Robot Location"
+                            subtitle="Using /odom topic (type nav_msgs/Odometry)"
+                            onTest={async () => {
+                                retrieveNewLocation();
+                            }}
+                            properties={[
+                                // { label: "Battery Level", value: "87%" },
+                                // { label: "Voltage", value: "24.3V" },
+                                // { label: "Current", value: "2.1A" },
+                            ]}
+                            customComponetns={
+                                <div className="flex flex-col gap-2">
+                                    {isConnected === true && <div className="text-green-500">Robot is online!</div>}
+                                    {isConnected === false && <div className="text-red-500">Error pinging robot</div>}
+                                </div>
+                            }
+                        />
+
                         {/* <DevTestComponent
                             buttonText="Test Network Status"
                             subtitle="Connection Metrics"

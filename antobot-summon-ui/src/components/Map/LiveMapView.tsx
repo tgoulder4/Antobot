@@ -68,12 +68,11 @@ export const LiveMapView: React.FC = () => {
         // This is your preserved layout structure
         <div className="bg-gray-300 rounded-lg h-[70vh] relative flex items-center justify-center">
 
-            {/* 1. The MapPlot component now renders the occupancy grid in the background */}
             <div className="absolute inset-0">
                 <MapPlot mapData={mapData} />
             </div>
 
-            {/* 2. The user's location dot, positioned dynamically */}
+
             {userPixelPosition && (
                 <div
                     className="absolute w-6 h-6 bg-blue-500 rounded-full border-2 border-white shadow-lg"
@@ -86,7 +85,7 @@ export const LiveMapView: React.FC = () => {
                 ></div>
             )}
 
-            {/* 3. The preserved 'antobot' div */}
+
             <div className="absolute bottom-16 right-12 w-8 h-12 bg-amber-200 border-2 border-amber-800 rounded-sm"></div>
         </div>
     );

@@ -1,0 +1,17 @@
+{
+  "output": "./generated/ros_msgs.ts",
+  "rosVersion": 1,
+  "typePrefix": "IRosType",
+  "useNamespaces": false,
+  "smartEnums": true, 
+  "input": [
+    {
+      "namespace": "std_msgs",
+      "path": "/opt/ros/noetic/share/std_msgs"
+    },
+    {
+      "namespace": "geometry_msgs",
+      "path": "/opt/ros/noetic/share/geometry_msgs"
+    }
+  ]
+}
