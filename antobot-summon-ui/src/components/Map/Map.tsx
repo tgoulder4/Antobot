@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useRef } from 'react';
-import Plotly from 'plotly.js-dist-min'
+// import Plotly from 'plotly.js-dist'
 
 // ===================================================================
 // 1. TYPE DEFINITIONS (Copied from the previous example)
@@ -92,7 +92,7 @@ export const MapPlot: React.FC<MapPlotProps> = ({ mapData }) => {
 
             // Use Plotly.react() for declarative, efficient updates in React.
             // It creates the plot on the first run and intelligently updates it on subsequent runs.
-            Plotly.react(plotRef.current, [trace as Plotly.Data], layout);
+            // Plotly.react(plotRef.current, [trace as Plotly.Data], layout);
         }
     }, [mapData]); // Dependency Array: This effect re-runs ONLY when `mapData` changes.
 

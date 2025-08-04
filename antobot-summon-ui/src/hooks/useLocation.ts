@@ -1,7 +1,7 @@
 'use client'
 import type { Location } from "@/types/location";
 import { useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 
 export const useLocation = (): Location & { retrieveNewLocation: () => Location | { error: string } } => {
     const [error, setError] = useState<string | null>(null);

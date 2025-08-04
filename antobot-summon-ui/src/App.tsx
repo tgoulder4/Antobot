@@ -9,7 +9,7 @@ import { ConnectionIndicator } from "./components/ConnectionIndicator"
 import { useConnectionStatus } from "./hooks/useConnectionStatus"
 import { summon } from "./lib/summon"
 import { useLocation } from "./hooks/useLocation"
-import { toast } from "sonner"
+// import { toast } from "sonner"
 import { mockMapData } from "./lib/mockMapData"
 import LiveMapView from "./components/Map/LiveMapView"
 export default function RobotControlApp() {
@@ -21,11 +21,11 @@ export default function RobotControlApp() {
     const r = await initialise()
     const { latitude, longitude, altitude } = loc;
     const res = await summon(r, latitude, longitude, altitude)
-    toast("Summon response:" + JSON.stringify(res))
+    // toast("Summon response:" + JSON.stringify(res))
     if (res.success) {
       setState("summoning")
     } else {
-      toast.error("Failed to summon robot:" + res.message)
+      // toast.error("Failed to summon robot:" + res.message)
     }
   }
 
@@ -44,7 +44,7 @@ export default function RobotControlApp() {
   return (
     <>
       <div className="w-screen flex justify-center">
-        <div className="min-h-screen overflow-y-hidden bg-white w-full xl:w-1/2 max-w-[1000px] flex flex-col border-x border-gray-200">
+        <div className="min-h-screen overflow-y-hidden bg-white w-full xl:w-1/2 max-w-[1000px] flex flex-col border-x border-gray-200 pr-4">
           <AppHeader isConnected={isConnected} robotState={state} initialise={initialise} />
 
           <div className="flex-1 p-4 space-y-4">

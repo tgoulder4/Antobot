@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Message, Ros, Topic } from "roslib"
-import { toast } from "sonner"
+// import { toast } from "sonner"
 
 export function useConnectionStatus() {
     const [isConnected, setIsConnected] = useState(false)
@@ -18,10 +18,10 @@ export function useConnectionStatus() {
             url: 'wss://10.33.57.178:9090' // Replace with your robot's WebSocket URL
         })
 
-        toast("Connecting to robot via wss...")
+        // toast("Connecting to robot via wss...")
         ros.on('connection', () => {
             setIsConnected(true);
-            toast.success("Connected to robot successfully");
+            // toast.success("Connected to robot successfully");
             setRos(ros);
         });
 
