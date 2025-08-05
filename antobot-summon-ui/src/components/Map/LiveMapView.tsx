@@ -66,7 +66,7 @@ export const LiveMapView: React.FC = () => {
 
     return (
         // This is your preserved layout structure
-        <div className="bg-gray-300 rounded-lg h-[50vh] relative flex items-center justify-center">
+        <div className="bg-gray-300 rounded-lg h-[38vh] relative flex items-center justify-center">
 
             <div className="absolute inset-0">
                 <MapPlot mapData={mapData} />
