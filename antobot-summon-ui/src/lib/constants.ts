@@ -1,0 +1,1 @@
+export const ANTOBOT_URL = 'replaceme_with_rosbridge_server_url'; // Replace with your robot's WebSocket URL

@@ -1,5 +1,6 @@
 "use client"
 
+import { ANTOBOT_URL } from "@/lib/constants"
 import { useState, useEffect } from "react"
 import { Message, Ros, Topic } from "roslib"
 // import { toast } from "sonner"
@@ -15,7 +16,7 @@ export function useConnectionStatus() {
         }
         //using roslib to connect to the robot
         const ros = new Ros({
-            url: 'wss://10.33.57.178:9090' // Replace with your robot's WebSocket URL
+            url: 'wss://' + ANTOBOT_URL // Replace with your robot's WebSocket URL
         })
 
         // toast("Connecting to robot via wss...")

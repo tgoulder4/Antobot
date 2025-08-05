@@ -44,7 +44,7 @@ export default function RobotControlApp() {
   return (
     <>
       <div className="w-screen flex justify-center">
-        <div className="min-h-screen overflow-y-hidden bg-white w-full xl:w-1/2 max-w-[1000px] flex flex-col border-x border-gray-200 pr-4">
+        <div className="min-h-screen overflow-y-hidden bg-white w-full xl:w-1/2 max-w-[1000px] flex flex-col border-x border-gray-200">
           <AppHeader isConnected={isConnected} robotState={state} initialise={initialise} />
 
           <div className="flex-1 p-4 space-y-4">
